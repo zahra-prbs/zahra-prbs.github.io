@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zahra Pourabbas — Backend Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+  /* ── TOKENS ─────────────────────────────── */
+  :root {
+    --bg:       #0a0e17;
+    --surface:  #111827;
+    --border:   #1e2d45;
+    --teal:     #00c2a8;
+    --teal-dim: #00c2a820;
+    --slate:    #8b9fc4;
+    --white:    #e8edf7;
+    --muted:    #4a5e7a;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono:    'Space Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID LINES (signature bg detail) ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ──────────────────────────────── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 48px;
+    background: rgba(10,14,23,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--teal);
+    letter-spacing: 0.08em;
+  }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    font-size: 13px;
+    color: var(--slate);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+
+  /* ── SECTIONS ─────────────────────────── */
+  section { position: relative; z-index: 1; }
+
+  /* ── HERO ─────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 120px 48px 80px;
+    max-width: 960px;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--teal);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 32px;
+    height: 1px;
+    background: var(--teal);
+  }
+  .hero h1 {
+    font-size: clamp(48px, 7vw, 88px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--teal);
+  }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--slate);
+    max-width: 560px;
+    margin-bottom: 48px;
+    line-height: 1.7;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    padding: 14px 28px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all .2s;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--teal);
+    color: #0a0e17;
+    border: 1px solid var(--teal);
+    font-weight: 700;
+  }
+  .btn-primary:hover { background: transparent; color: var(--teal); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--slate);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--slate); color: var(--white); }
+
+  /* ── STAT BAR ─────────────────────────── */
+  .stat-bar {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin: 0 48px;
+  }
+  .stat {
+    flex: 1;
+    padding: 28px 32px;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--teal);
+    display: block;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── CONTENT WRAPPER ─────────────────── */
+  .content { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+
+  /* ── SECTION HEADER ──────────────────── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 56px;
+    padding-top: 96px;
+  }
+  .section-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--teal);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--teal-dim);
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .section-title {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .section-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── SKILLS ──────────────────────────── */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 96px;
+  }
+  .skill-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    transition: border-color .2s;
+  }
+  .skill-group:hover { border-color: var(--teal); }
+  .skill-group-name {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--teal);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .skill-tag {
+    font-size: 12px;
+    color: var(--slate);
+    background: rgba(0,194,168,0.05);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 2px 8px;
+  }
+
+  /* ── EXPERIENCE ──────────────────────── */
+  .timeline { display: flex; flex-direction: column; gap: 0; margin-bottom: 96px; }
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 0;
+    border-top: 1px solid var(--border);
+    padding: 36px 0;
+  }
+  .timeline-item:last-child { border-bottom: 1px solid var(--border); }
+  .timeline-meta { padding-right: 40px; }
+  .timeline-period {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .timeline-company {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--slate);
+    margin-bottom: 4px;
+  }
+  .timeline-type {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: inline-block;
+    margin-top: 8px;
+    font-family: var(--font-mono);
+  }
+  .timeline-body {}
+  .timeline-role {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  .timeline-bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .timeline-bullets li {
+    font-size: 14px;
+    color: var(--slate);
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.6;
+  }
+  .timeline-bullets li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--teal);
+    font-size: 11px;
+  }
+  .stack-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .stack-chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border-radius: 3px;
+    padding: 3px 8px;
+  }
+
+  /* ── PROJECTS ────────────────────────── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    margin-bottom: 96px;
+  }
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: border-color .2s, transform .2s;
+  }
+  .project-card:hover {
+    border-color: var(--teal);
+    transform: translateY(-2px);
+  }
+  .project-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .project-desc {
+    font-size: 13px;
+    color: var(--slate);
+    line-height: 1.65;
+    flex: 1;
+  }
+  .project-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .project-features li {
+    font-size: 12px;
+    color: var(--slate);
+    padding-left: 14px;
+    position: relative;
+  }
+  .project-features li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--teal);
+  }
+
+  /* ── EDUCATION ───────────────────────── */
+  .edu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 96px;
+  }
+  .edu-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px;
+  }
+  .edu-degree {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .edu-school {
+    font-size: 14px;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .edu-period {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .edu-grade {
+    font-size: 12px;
+    color: var(--slate);
+    margin-top: 8px;
+  }
+
+  /* ── CERTS ───────────────────────────── */
+  .certs-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+    margin-bottom: 96px;
+  }
+  .cert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  .cert-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--teal);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .cert-name { color: var(--white); line-height: 1.4; }
+  .cert-issuer { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ── LANGUAGES ───────────────────────── */
+  .lang-grid {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 96px;
+  }
+  .lang-card {
+    flex: 1;
+    min-width: 160px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+  }
+  .lang-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .lang-level {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── CONTACT ─────────────────────────── */
+  .contact-section {
+    border-top: 1px solid var(--border);
+    padding: 96px 48px 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .contact-headline {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .contact-text {
+    font-size: 15px;
+    color: var(--slate);
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+  .contact-links { display: flex; flex-direction: column; gap: 16px; }
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none;
+    color: var(--slate);
+    font-size: 14px;
+    transition: color .2s;
+  }
+  .contact-link:hover { color: var(--teal); }
+  .contact-link-icon {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--teal);
+    width: 28px;
+    text-align: center;
+    opacity: 0.8;
+  }
+
+  /* ── FOOTER ──────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── ANIMATIONS ──────────────────────── */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero > * { animation: fade-up .6s ease both; }
+  .hero > *:nth-child(1) { animation-delay: .1s; }
+  .hero > *:nth-child(2) { animation-delay: .2s; }
+  .hero > *:nth-child(3) { animation-delay: .35s; }
+  .hero > *:nth-child(4) { animation-delay: .5s; }
+
+  /* ── RESPONSIVE ──────────────────────── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 20px 60px; }
+    .stat-bar { flex-wrap: wrap; margin: 0 20px; }
+    .stat { flex: 0 0 50%; border-right: none; border-bottom: 1px solid var(--border); }
+    .content { padding: 0 20px; }
+    .timeline-item { grid-template-columns: 1fr; gap: 12px; }
+    .edu-grid { grid-template-columns: 1fr; }
+    .contact-inner { grid-template-columns: 1fr; }
+    .contact-section { padding: 60px 20px; }
+    footer { flex-direction: column; gap: 8px; padding: 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero > * { animation: none; }
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">ZP.dev</span>
+  <ul class="nav-links">
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-eyebrow">Backend Engineer · Istanbul</p>
+  <h1>Zahra<br/><em>Pourabbas</em></h1>
+  <p class="hero-sub">
+    Building scalable backend systems for healthcare and CRM platforms. Specialist in Django, event-driven architecture, and multi-tenant SaaS.
+  </p>
+  <div class="hero-cta">
+    <a href="mailto:Pourabbaszahra3@gmail.com" class="btn btn-primary">Get in touch</a>
+    <a href="https://github.com/zahra-prbs" target="_blank" class="btn btn-ghost">GitHub</a>
+    <a href="https://www.linkedin.com/in/zahra-pourabbas-30101322a/" target="_blank" class="btn btn-ghost">LinkedIn</a>
+  </div>
+</div>
+
+<!-- STAT BAR -->
+<div class="stat-bar">
+  <div class="stat">
+    <span class="stat-num">2+</span>
+    <span class="stat-label">Years of Experience</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">4</span>
+    <span class="stat-label">Major Projects</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">4</span>
+    <span class="stat-label">Languages Spoken</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">10+</span>
+    <span class="stat-label">Certifications</span>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="content">
+    <div class="section-header">
+      <span class="section-tag">01</span>
+      <h2 class="section-title">Skills</h2>
+      <div class="section-rule"></div>
+    </div>
+    <div class="skills-grid">
+
+      <div class="skill-group">
+        <div class="skill-group-name">Backend</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Django</span>
+          <span class="skill-tag">DRF</span>
+          <span class="skill-tag">REST APIs</span>
+          <span class="skill-tag">Multi-Tenancy</span>
+          <span class="skill-tag">Microservices</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-name">Languages</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">SQL</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-name">Databases</div>
+        <div class="skill-tags">
+          <span class="skill-tag">PostgreSQL</span>
+          <span class="skill-tag">NoSQL</span>
+          <span class="skill-tag">ERD Design</span>
+          <span class="skill-tag">Query Optimization</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-name">Async & Events</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Celery</span>
+          <span class="skill-tag">RabbitMQ</span>
+          <span class="skill-tag">Redis</span>
+          <span class="skill-tag">WebSockets</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-name">DevOps</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Docker</span>
+          <span class="skill-tag">Rancher</span>
+          <span class="skill-tag">Linux</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-name">Testing & Monitoring</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Unit Testing</span>
+          <span class="skill-tag">Sentry</span>
+          <span class="skill-tag">Postman</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-name">Collaboration</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Git</span>
+          <span class="skill-tag">GitHub</span>
+          <span class="skill-tag">Jira</span>
+          <span class="skill-tag">Agile</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-name">Frontend Basics</div>
+        <div class="skill-tags">
+          <span class="skill-tag">HTML</span>
+          <span class="skill-tag">CSS</span>
+          <span class="skill-tag">JavaScript</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="content">
+    <div class="section-header">
+      <span class="section-tag">02</span>
+      <h2 class="section-title">Experience</h2>
+      <div class="section-rule"></div>
+    </div>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-meta">
+          <div class="timeline-period">May 2025 — Mar 2026</div>
+          <div class="timeline-company">Elegant Hoopoe</div>
+          <div class="timeline-type">Full-time · Remote</div>
+        </div>
+        <div class="timeline-body">
+          <div class="timeline-role">Back-End Developer</div>
+          <ul class="timeline-bullets">
+            <li>Developed backend features for healthcare platforms including EMR and health club management systems</li>
+            <li>Designed and implemented multi-tenant architecture with secure data isolation across organizations</li>
+            <li>Built and maintained CRM services for customer data, leads, and communication workflows</li>
+            <li>Implemented asynchronous and event-driven processing using Celery and RabbitMQ</li>
+            <li>Improved system performance with Redis caching for high-frequency data access</li>
+            <li>Managed containerized services using Rancher in production; integrated Sentry for real-time monitoring</li>
+          </ul>
+          <div class="stack-chips">
+            <span class="stack-chip">Django</span>
+            <span class="stack-chip">DRF</span>
+            <span class="stack-chip">PostgreSQL</span>
+            <span class="stack-chip">Redis</span>
+            <span class="stack-chip">RabbitMQ</span>
+            <span class="stack-chip">Celery</span>
+            <span class="stack-chip">Docker</span>
+            <span class="stack-chip">Rancher</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-meta">
+          <div class="timeline-period">Feb 2024 — Feb 2025</div>
+          <div class="timeline-company">Freelance</div>
+          <div class="timeline-type">Self-employed</div>
+        </div>
+        <div class="timeline-body">
+          <div class="timeline-role">Backend Developer</div>
+          <ul class="timeline-bullets">
+            <li>Developed and maintained RESTful APIs using Django and Django REST Framework</li>
+            <li>Built an Asset Management System for tracking and managing organizational resources</li>
+            <li>Designed database schemas and handled data modelling (ERD)</li>
+            <li>Ensured code quality through testing, refactoring, and performance optimization</li>
+          </ul>
+          <div class="stack-chips">
+            <span class="stack-chip">Python</span>
+            <span class="stack-chip">Django</span>
+            <span class="stack-chip">DRF</span>
+            <span class="stack-chip">PostgreSQL</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="content">
+    <div class="section-header">
+      <span class="section-tag">03</span>
+      <h2 class="section-title">Projects</h2>
+      <div class="section-rule"></div>
+    </div>
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <div class="project-title">Healthcare Diet & Wellness Platform</div>
+        <div class="project-desc">Multi-tenant SaaS platform supporting Doctor, Admin, Manager, Nurse, and Customer roles with advanced diet and workout planning.</div>
+        <ul class="project-features">
+          <li>JWT auth with dynamic client-based access control</li>
+          <li>Diet engine based on BMI, allergies, goals, and gift-card plans</li>
+          <li>Real-time WebSocket nudge/notification system</li>
+          <li>Progress tracking: calorie burn, meal scoring, achievements</li>
+          <li>Event-driven architecture with Celery, Redis & RabbitMQ</li>
+        </ul>
+        <div class="stack-chips">
+          <span class="stack-chip">Django</span>
+          <span class="stack-chip">DRF</span>
+          <span class="stack-chip">PostgreSQL</span>
+          <span class="stack-chip">Redis</span>
+          <span class="stack-chip">Celery</span>
+          <span class="stack-chip">RabbitMQ</span>
+          <span class="stack-chip">Docker</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-title">EMR & Clinic Management System</div>
+        <div class="project-desc">Full-featured Electronic Medical Record system for healthcare providers with appointments, analytics, and payment management.</div>
+        <ul class="project-features">
+          <li>Patient session & appointment booking system</li>
+          <li>Dashboarding with time-based analytics</li>
+          <li>Contract and invoice management modules</li>
+          <li>Device & tablet tracking for healthcare staff</li>
+          <li>Performance-optimized backend services</li>
+        </ul>
+        <div class="stack-chips">
+          <span class="stack-chip">Django</span>
+          <span class="stack-chip">DRF</span>
+          <span class="stack-chip">PostgreSQL</span>
+          <span class="stack-chip">Docker</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-title">Clinic Operations & Branch Management</div>
+        <div class="project-desc">Comprehensive system for managing clinic branches, home services, club sessions, and flexible payment workflows.</div>
+        <ul class="project-features">
+          <li>Branch hours, availability, and open/close scheduling</li>
+          <li>Home services management for remote patient care</li>
+          <li>Club/session management with update and cancellation flows</li>
+          <li>Full, partial, and installment payment tracking</li>
+        </ul>
+        <div class="stack-chips">
+          <span class="stack-chip">Django</span>
+          <span class="stack-chip">DRF</span>
+          <span class="stack-chip">PostgreSQL</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-title">Subscription, Licensing & User Management</div>
+        <div class="project-desc">Secure and scalable product licensing system with role-based access control and custom audit logging.</div>
+        <ul class="project-features">
+          <li>Product, license, and subscription management</li>
+          <li>Role/group-based user control system</li>
+          <li>Custom audit logging for all system activities</li>
+          <li>Secure and scalable access control architecture</li>
+        </ul>
+        <div class="stack-chips">
+          <span class="stack-chip">Django</span>
+          <span class="stack-chip">PostgreSQL</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="content">
+    <div class="section-header">
+      <span class="section-tag">04</span>
+      <h2 class="section-title">Education</h2>
+      <div class="section-rule"></div>
+    </div>
+    <div class="edu-grid">
+      <div class="edu-card">
+        <div class="edu-degree">Master's in Computer Engineering</div>
+        <div class="edu-school">İstanbul Gelişim Üniversitesi</div>
+        <div class="edu-period">Jan 2026 — Present</div>
+      </div>
+      <div class="edu-card">
+        <div class="edu-degree">Bachelor's in Computer Engineering</div>
+        <div class="edu-school">Islamic Azad University</div>
+        <div class="edu-period">2021 — Sep 2024</div>
+        <div class="edu-grade">Grade: 17.69 / 20</div>
+      </div>
+    </div>
+
+    <!-- CERTS -->
+    <div class="section-header" style="padding-top: 0;">
+      <span class="section-tag">05</span>
+      <h2 class="section-title">Certifications</h2>
+      <div class="section-rule"></div>
+    </div>
+    <div class="certs-list">
+      <div class="cert-item"><div class="cert-dot"></div><div><div class="cert-name">Automate The Boring Stuff With Django</div><div class="cert-issuer">Udemy · Nov 2025</div></div></div>
+      <div class="cert-item"><div class="cert-dot"></div><div><div class="cert-name">Introduction to Software Engineering (with Honors)</div><div class="cert-issuer">ULSA · Mar 2025</div></div></div>
+      <div class="cert-item"><div class="cert-dot"></div><div><div class="cert-name">Hands-on Introduction to Linux Commands & Shell Scripting</div><div class="cert-issuer">ULSA · Jan 2025</div></div></div>
+      <div class="cert-item"><div class="cert-dot"></div><div><div class="cert-name">Postman API Fundamentals Student Expert</div><div class="cert-issuer">Postman · Aug 2024</div></div></div>
+      <div class="cert-item"><div class="cert-dot"></div><div><div class="cert-name">Task-Oriented Course in NoSQL</div><div class="cert-issuer">Quera · Aug 2024</div></div></div>
+      <div class="cert-item"><div class="cert-dot"></div><div><div class="cert-name">Basics of Programming</div><div class="cert-issuer">Google · Sep 2024</div></div></div>
+      <div class="cert-item"><div class="cert-dot"></div><div><div class="cert-name">Django REST API</div><div class="cert-issuer">Codeyad · Dec 2022</div></div></div>
+      <div class="cert-item"><div class="cert-dot"></div><div><div class="cert-name">Django</div><div class="cert-issuer">Codeyad · Apr 2022</div></div></div>
+      <div class="cert-item"><div class="cert-dot"></div><div><div class="cert-name">Introduction to Programming Using HTML & CSS</div><div class="cert-issuer">Iran TVTO · Jun 2021</div></div></div>
+      <div class="cert-item"><div class="cert-dot"></div><div><div class="cert-name">Python Programming</div><div class="cert-issuer">Iran TVTO · Feb 2021</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- LANGUAGES -->
+<section>
+  <div class="content">
+    <div class="section-header">
+      <span class="section-tag">06</span>
+      <h2 class="section-title">Languages</h2>
+      <div class="section-rule"></div>
+    </div>
+    <div class="lang-grid">
+      <div class="lang-card">
+        <div class="lang-name">Turkish</div>
+        <div class="lang-level">Native / Bilingual</div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-name">Persian</div>
+        <div class="lang-level">Native / Bilingual</div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-name">Azerbaijani</div>
+        <div class="lang-level">Full Professional</div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-name">English</div>
+        <div class="lang-level">Professional Working</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-section">
+    <div class="contact-inner">
+      <div>
+        <h2 class="contact-headline">Let's work<br/>together.</h2>
+        <p class="contact-text">
+          Open to backend engineering roles, collaborative projects, and technical challenges in scalable systems and healthcare tech.
+        </p>
+        <a href="mailto:Pourabbaszahra3@gmail.com" class="btn btn-primary">Send a message</a>
+      </div>
+      <div class="contact-links">
+        <a href="mailto:Pourabbaszahra3@gmail.com" class="contact-link">
+          <span class="contact-link-icon">@</span>
+          Pourabbaszahra3@gmail.com
+        </a>
+        <a href="https://github.com/zahra-prbs" target="_blank" class="contact-link">
+          <span class="contact-link-icon">GH</span>
+          github.com/zahra-prbs
+        </a>
+        <a href="https://www.linkedin.com/in/zahra-pourabbas-30101322a/" target="_blank" class="contact-link">
+          <span class="contact-link-icon">in</span>
+          linkedin.com/in/zahra-pourabbas
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Zahra Pourabbas</span>
+  <span>Backend Engineer · Istanbul</span>
+</footer>
+
+</body>
+</html>
